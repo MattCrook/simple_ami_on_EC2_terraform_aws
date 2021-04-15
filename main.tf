@@ -3,12 +3,13 @@ provider "aws" {
 }
 
 // AMI is an Amazon Machine Image, to run on the EC2 instance.
+// This is a single instance, this would need to be removed if we were planning to use the aws_launch_configuration.
 resource "aws_instance" "my_instance" {
     ami                    = "ami-0c55b159cbfafe1f0"
     instance_type          = "t2.micro"
     vpc_security_group_ids = [aws_security_group.instance.id]
 
-    // Simple bash script that writes to a html file and runs a tool called busybox and serves the file. 
+    // Simple bash script that writes to a html file and runs a tool called busybox and serves the file.
     // user_data = <<-EOF
     //             #! /bin/bash
     //             echo "Hello Terraform" > index.html
@@ -20,14 +21,13 @@ resource "aws_instance" "my_instance" {
             nohup busybox hhtpd -f -p "${var.server_port}" &
             EOF
 
-    // Doesn't have a name yet, so to add one you can add tags
-    // to the aws_instance resource
+    // If Doesn't have a name yet, so to add one you can add tags to the aws_instance resource
     tags = {
         Name = "AWS-terraform-example"
     }
 }
 
-// By defult AMS does not allow incoming and outgoing traffic on EC2 instance.
+// By defult AWS does not allow incoming and outgoing traffic on EC2 instance.
 // To allow, must create a security group
 // Specfies that the group allows incoming TCP requests on port 8080 from CIDR block 0.0.0.0/0.
 // Use the id  attribute exported from this resource up in the aws_instance resource.
@@ -37,7 +37,7 @@ resource "aws_security_group" "instance" {
     ingress {
         // from_port   = 8080
         // to_port     = 8080
-        // Using variable reference
+        // Or using variable reference:
         from_port   = var.server_port
         to_port     = var.server_port
         protocol    = "tcp"
