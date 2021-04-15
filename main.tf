@@ -79,8 +79,10 @@ resource "aws_autoscaling_group" "my_instance_asg" {
 
     // Pointing at new target group...defined below as "asg". 
     target_group_arns = [aws_lb_target_group.asg.arn]
+
     // Defualt health_check type is "EC2". Minimal health check that considers an instance unhealthy only if the AWS hypervisor says
-    // the VM instance is completely down or unreachable. 
+    // the VM instance is completely down or unreachable.
+    // The ELB health check is more robust bc it instructs the ASG to use the target group's health check.
     health_check_type = "ELB"
 
     min_size = 2
@@ -166,5 +168,22 @@ resource "aws_lb_target_group" "asg" {
         timeout             = 3
         healthy_threshold   = 2
         unhealthy_threshold = 2
+    }
+}
+
+// Tie things together with adding a listener rule hat sends requests that match any path to the target group that contains our ASG(Auto Scaling Group)
+recourse "aws_lb_listener_rule" "asg" {
+    listener_arn = aws_lb_listener.http.arn
+    priority     = 100
+
+    condition {
+        path_pattern {
+            values = ["*"]
+        }
+    }
+
+    action {
+        type             = "forward"
+        target_group_arn = aws_lb_target_group.asg.arn
     }
 }
