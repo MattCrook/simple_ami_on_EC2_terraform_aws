@@ -8,7 +8,7 @@ resource "aws_instance" "my_instance" {
     instance_type          = "t2.micro"
     vpc_security_group_ids = [aws_security_group.instance.id]
 
-    // Simples bash script that writes to a html file and runs a tool called busybox and serves the file. 
+    // Simple bash script that writes to a html file and runs a tool called busybox and serves the file. 
     // user_data = <<-EOF
     //             #! /bin/bash
     //             echo "Hello Terraform" > index.html
@@ -141,7 +141,7 @@ resource "aws_security_group" "alb" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-    // Allow all outbound rrequets
+    // Allow all outbound requets
     egress {
         from_port   = 0
         to_port     = 0
